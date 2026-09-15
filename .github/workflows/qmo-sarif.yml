@@ -1,0 +1,19 @@
+name: QMO SARIF upload
+on: [workflow_dispatch]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download QMO SARIF
+        run: |
+          curl -H "Authorization: Bearer ${{ secrets.QMO_TOKEN }}" \
+            "https://qmstage.cyrosa.ai/api/control-plane/v1/tenants/${{ secrets.QMO_TENANT_ID }}/export/sarif" -o qmo.sarif.json
+      - name: Upload to GitHub code scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: qmo.sarif.json
